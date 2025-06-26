@@ -8,7 +8,17 @@ from openai import OpenAI
 
 # Load environment variables
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+if "OPENAI_API_KEY" in st.secrets:
+    api_key = st.secrets["OPENAI_API_KEY"]
+else:
+    api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    st.error("Kein OpenAI API-Schlüssel gefunden. Bitte setze ihn als Umgebungsvariable oder in den Streamlit Secrets.")
+    st.stop()
+
+client = OpenAI(api_key=api_key)
 
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
 st.title("🎒 Dein personalisierter Reise-Packlisten-Generator")
