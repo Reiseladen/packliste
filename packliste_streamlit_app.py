@@ -8,84 +8,75 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from fpdf import FPDF
 
-# Load environment variables
+# Umgebung laden
 load_dotenv()
-# Fallback: Nutze Streamlit Secrets, falls .env nicht verfügbar ist
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
+# Layout & Stil
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
-# Design-Anpassung: Farben, Logo, ggf. Schrift
-st.markdown(
-    """
+
+# Stildefinitionen
+st.markdown("""
     <style>
-        /* Hintergrundfarbe der App */
-        .stApp {
-            background-color: white;
-            font-family: 'Open Sans', sans-serif;
-            color: #5d5d5d;
-        }
-        /* Überschriftenfarbe */
-        h1, h2, h3 {
-            color: #40bceb;
-        }
-        /* Button-Design */
-        div.stButton > button {
-            background-color: #40bceb;
-            color: white;
-            border: none;
-            padding: 0.5em 1em;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-        /* Download-Button */
-        .stDownloadButton {
-            background-color: #f9414f !important;
-            color: white !important;
-        }
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: #5d5d5d;
+    }
+    h1, h2, h3 {
+        color: #40bceb;
+    }
+    .stButton>button {
+        background-color: #40bceb;
+        color: white;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 0.6em 1em;
+    }
+    .stButton>button:hover {
+        background-color: #2fa1cf;
+    }
+    .stDownloadButton>button {
+        background-color: #f9414f;
+        color: white;
+        font-weight: bold;
+    }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
-# Logo einfügen (Pfad ggf. anpassen bei lokalem Test)
-st.image("5534c596-5dc5-4828-a5c2-904406d88317.png", width=300)
+# Logo einfügen
+st.image("5534c596-5dc5-4828-a5c2-904406d88317.png", width=100)
 
-st.title("🎒 Dein personalisierter Reise-Packlisten-Generator")
-
-st.markdown("Fülle das Formular aus und erhalte eine auf dich abgestimmte Packliste.")
+st.title("🎒 Dein Reise-Packlisten-Generator")
+st.markdown("Fülle das Formular aus und erhalte eine individuell abgestimmte Packliste.")
 
 # Eingabefelder
+st.subheader("📍 Reiseziel & Zeitraum")
 reiseziel = st.text_input("Reiseziel", placeholder="z. B. Barcelona")
 
-col1, col2 = st.columns(2)
-with col1:
-    startdatum = st.date_input("Startdatum", value=datetime.date.today())
-with col2:
-    enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
-
+startdatum = st.date_input("Startdatum", value=datetime.date.today())
+enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
 dauer = (enddatum - startdatum).days
 
-st.markdown("### Anzahl der Reisenden")
-col1, col2, col3 = st.columns(3)
-with col1:
-    erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
-with col2:
-    kinder = st.number_input("Kinder", min_value=0, max_value=10, value=0)
-with col3:
-    haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
+st.subheader("👥 Anzahl der Reisenden")
+erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
+kinder = st.number_input("Kinder", min_value=0, max_value=10, value=0)
+haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
 
+st.subheader("🧭 Reiseart & Unterkunft")
 reiseart = st.selectbox("Reiseart", ["Strand", "Stadt", "Sport", "Familie", "Business"])
-unterkunft = st.selectbox("Unterkunftsart", ["Hotel", "Camping", "Selbstversorger"])
+unterkunft = st.selectbox("Unterkunft", ["Hotel", "Camping", "Selbstversorger"])
 transportmittel = st.selectbox("Transportmittel", ["Auto", "Flugzeug", "Zug", "Bus", "Wohnmobil"])
 
+st.subheader("🎯 Aktivitäten & Wünsche")
 aktivitaeten = st.multiselect(
-    "Geplante Aktivitäten",
+    "Aktivitäten",
     ["Wandern", "Schwimmen", "Sightseeing", "Radfahren", "Klettern", "Wellness", "Tauchen", "Museen", "Skifahren"]
 )
 
-besondere_wuensche = st.text_area("Besondere Wünsche oder Hinweise", placeholder="z. B. Allergien, barrierefreie Unterkunft")
+besondere_wuensche = st.text_area("Besondere Hinweise", placeholder="z. B. Allergien, barrierefreie Unterkunft")
 
+# Button zum Generieren der Packliste
 if st.button("📦 Packliste generieren"):
     prompt = f"""
     Erstelle eine Packliste für folgende Reisedaten:
@@ -131,3 +122,4 @@ if st.button("📦 Packliste generieren"):
                 )
     except Exception as e:
         st.error(f"Fehler bei der Packlistenerstellung: {e}")
+        
