@@ -15,6 +15,42 @@ api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
+# Design-Anpassung: Farben, Logo, ggf. Schrift
+st.markdown(
+    """
+    <style>
+        /* Hintergrundfarbe der App */
+        .stApp {
+            background-color: white;
+            font-family: 'Open Sans', sans-serif;
+            color: #5d5d5d;
+        }
+        /* Überschriftenfarbe */
+        h1, h2, h3 {
+            color: #40bceb;
+        }
+        /* Button-Design */
+        div.stButton > button {
+            background-color: #40bceb;
+            color: white;
+            border: none;
+            padding: 0.5em 1em;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        /* Download-Button */
+        .stDownloadButton {
+            background-color: #f9414f !important;
+            color: white !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Logo einfügen (Pfad ggf. anpassen bei lokalem Test)
+st.image("5534c596-5dc5-4828-a5c2-904406d88317.png", width=300)
+
 st.title("🎒 Dein personalisierter Reise-Packlisten-Generator")
 
 st.markdown("Fülle das Formular aus und erhalte eine auf dich abgestimmte Packliste.")
