@@ -84,3 +84,6 @@ if st.button("📦 Packliste generieren"):
         st.markdown(packliste)
     except Exception as e:
         st.error(f"Fehler bei der Packlistenerstellung: {e}")
+
+Fix: OpenAI-API-Key-Fallback für Streamlit Secrets oder lokale .env
+
