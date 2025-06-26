@@ -33,7 +33,7 @@ pdf = FPDF()
 pdf.add_page()
 pdf.set_font("Arial", size=12)
 for line in packliste.split("\n"):
-pdf.multi_cell(0, 10, line)
+     pdf.multi_cell(0, 10, line)
 
 # Temporäre Datei speichern
 with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
