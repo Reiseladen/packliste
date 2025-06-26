@@ -3,48 +3,21 @@
 import streamlit as st
 import datetime
 import os
+import tempfile
 from dotenv import load_dotenv
 from openai import OpenAI
+from fpdf import FPDF
 
 # Load environment variables
 load_dotenv()
-
-if "OPENAI_API_KEY" in st.secrets:
-    api_key = st.secrets["OPENAI_API_KEY"]
-else:
-    api_key = os.getenv("OPENAI_API_KEY")
-
-if not api_key:
-    st.error("Kein OpenAI API-Schlüssel gefunden. Bitte setze ihn als Umgebungsvariable oder in den Streamlit Secrets.")
-    st.stop()
-
+# Fallback: Nutze Streamlit Secrets, falls .env nicht verfügbar ist
+api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
 st.title("🎒 Dein personalisierter Reise-Packlisten-Generator")
 
 st.markdown("Fülle das Formular aus und erhalte eine auf dich abgestimmte Packliste.")
-
-from fpdf import FPDF
-import tempfile
-
-# PDF erstellen
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size=12)
-for line in packliste.split("\n"):
-     pdf.multi_cell(0, 10, line)
-
-# Temporäre Datei speichern
-with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
-   pdf.output(tmpfile.name)
-st.download_button(
-label="📄 Packliste als PDF herunterladen",
-data=open(tmpfile.name, "rb"),
-file_name=f"Packliste_{reiseziel}_{startdatum}.pdf",
-mime="application/pdf"
-            )
-
 
 # Eingabefelder
 reiseziel = st.text_input("Reiseziel", placeholder="z. B. Barcelona")
@@ -103,8 +76,22 @@ if st.button("📦 Packliste generieren"):
         packliste = response.choices[0].message.content
         st.markdown("### 🧾 Deine Packliste")
         st.markdown(packliste)
+
+        # PDF-Export
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        for line in packliste.split("\n"):
+            pdf.multi_cell(0, 10, line)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
+            pdf.output(tmpfile.name)
+            with open(tmpfile.name, "rb") as f:
+                st.download_button(
+                    label="📄 Packliste als PDF herunterladen",
+                    data=f,
+                    file_name=f"Packliste_{reiseziel}_{startdatum}.pdf",
+                    mime="application/pdf"
+                )
     except Exception as e:
         st.error(f"Fehler bei der Packlistenerstellung: {e}")
-
-Fix: OpenAI-API-Key-Fallback für Streamlit Secrets oder lokale .env
-
