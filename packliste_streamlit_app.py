@@ -25,24 +25,24 @@ st.title("🎒 Dein personalisierter Reise-Packlisten-Generator")
 
 st.markdown("Fülle das Formular aus und erhalte eine auf dich abgestimmte Packliste.")
 
-        from fpdf import FPDF
-        import tempfile
+from fpdf import FPDF
+import tempfile
 
-        # PDF erstellen
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        for line in packliste.split("\n"):
-            pdf.multi_cell(0, 10, line)
+# PDF erstellen
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+for line in packliste.split("\n"):
+pdf.multi_cell(0, 10, line)
 
-        # Temporäre Datei speichern
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
-            pdf.output(tmpfile.name)
-            st.download_button(
-                label="📄 Packliste als PDF herunterladen",
-                data=open(tmpfile.name, "rb"),
-                file_name=f"Packliste_{reiseziel}_{startdatum}.pdf",
-                mime="application/pdf"
+# Temporäre Datei speichern
+with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmpfile:
+pdf.output(tmpfile.name)
+st.download_button(
+label="📄 Packliste als PDF herunterladen",
+data=open(tmpfile.name, "rb"),
+file_name=f"Packliste_{reiseziel}_{startdatum}.pdf",
+mime="application/pdf"
             )
 
 
