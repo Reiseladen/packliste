@@ -16,6 +16,8 @@ client = OpenAI(api_key=api_key)
 # Layout & Stil
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
 
+st.image("Instant Article Logo 1.png", width=100)
+
 # Stildefinitionen
 st.markdown("""
     <style>
