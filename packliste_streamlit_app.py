@@ -10,39 +10,51 @@ from fpdf import FPDF
 
 # Load environment variables
 load_dotenv()
+# Fallback: Nutze Streamlit Secrets, falls .env nicht verfügbar ist
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-# 🌐 Seiten-Layout und Farben
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
 
-# 🚀 Branding und Logo (wenn vorhanden)
-logo_path = "logo.png"  # Stelle sicher, dass logo.png im Repository liegt
-try:
-    st.image(logo_path, width=120)
-except:
-    st.write("")  # Falls kein Logo gefunden wird, wird nichts angezeigt
+# Versuche, ein Logo anzuzeigen (optional)
+logo_path = "logo.png"
+if os.path.exists(logo_path):
+    st.image(logo_path, width=100)
 
-# 💠 Titel mit Markenfarbe
-st.markdown(
-    "<h1 style='color:#40bceb; font-family:sans-serif;'>🎒 Dein Reise-Packlisten-Generator</h1>",
-    unsafe_allow_html=True
-)
+# Stil und Titel
+st.markdown("""
+    <style>
+    html, body, [class*="css"]  {
+        font-family: 'Open Sans', sans-serif;
+        background-color: #ffffff;
+    }
+    .main h1 { color: #40bceb; }
+    </style>
+    """, unsafe_allow_html=True)
 
+st.title("🎒 Dein Reise-Packlisten-Generator")
 st.markdown("Fülle das Formular aus und erhalte eine individuell abgestimmte Packliste.")
 
 # Eingabefelder
 st.subheader("📍 Reiseziel & Zeitraum")
 reiseziel = st.text_input("Reiseziel", placeholder="z. B. Barcelona")
 
-startdatum = st.date_input("Startdatum", value=datetime.date.today())
-enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
+col1, col2 = st.columns(2)
+with col1:
+    startdatum = st.date_input("Startdatum", value=datetime.date.today())
+with col2:
+    enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
+
 dauer = (enddatum - startdatum).days
 
 st.subheader("👥 Anzahl der Reisenden")
-erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
-kinder = st.number_input("Kinder", min_value=0, max_value=10, value=0)
-haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
+col1, col2, col3 = st.columns(3)
+with col1:
+    erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
+with col2:
+    kinder = st.number_input("Kinder", min_value=0, max_value=10, value=0)
+with col3:
+    haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
 
 st.subheader("🧭 Reiseart & Unterkunft")
 reiseart = st.selectbox("Reiseart", ["Strand", "Stadt", "Sport", "Familie", "Business"])
@@ -54,7 +66,6 @@ aktivitaeten = st.multiselect(
     "Aktivitäten",
     ["Wandern", "Schwimmen", "Sightseeing", "Radfahren", "Klettern", "Wellness", "Tauchen", "Museen", "Skifahren"]
 )
-
 besondere_wuensche = st.text_area("Besondere Hinweise", placeholder="z. B. Allergien, barrierefreie Unterkunft")
 
 # Button zum Generieren der Packliste
@@ -103,4 +114,3 @@ if st.button("📦 Packliste generieren"):
                 )
     except Exception as e:
         st.error(f"Fehler bei der Packlistenerstellung: {e}")
-        
