@@ -8,48 +8,27 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from fpdf import FPDF
 
-# Umgebung laden
+# Load environment variables
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-# Layout & Stil
+# 🌐 Seiten-Layout und Farben
 st.set_page_config(page_title="Reise-Packlisten Generator", layout="centered")
 
-st.image("Instant Article Logo 1.png", width=100)
+# 🚀 Branding und Logo (wenn vorhanden)
+logo_path = "logo.png"  # Stelle sicher, dass logo.png im Repository liegt
+try:
+    st.image(logo_path, width=120)
+except:
+    st.write("")  # Falls kein Logo gefunden wird, wird nichts angezeigt
 
-# Stildefinitionen
-st.markdown("""
-    <style>
-    body {
-        font-family: 'Open Sans', sans-serif;
-        color: #5d5d5d;
-    }
-    h1, h2, h3 {
-        color: #40bceb;
-    }
-    .stButton>button {
-        background-color: #40bceb;
-        color: white;
-        font-weight: bold;
-        border-radius: 6px;
-        padding: 0.6em 1em;
-    }
-    .stButton>button:hover {
-        background-color: #2fa1cf;
-    }
-    .stDownloadButton>button {
-        background-color: #f9414f;
-        color: white;
-        font-weight: bold;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# 💠 Titel mit Markenfarbe
+st.markdown(
+    "<h1 style='color:#40bceb; font-family:sans-serif;'>🎒 Dein Reise-Packlisten-Generator</h1>",
+    unsafe_allow_html=True
+)
 
-# Logo einfügen
-st.image("5534c596-5dc5-4828-a5c2-904406d88317.png", width=100)
-
-st.title("🎒 Dein Reise-Packlisten-Generator")
 st.markdown("Fülle das Formular aus und erhalte eine individuell abgestimmte Packliste.")
 
 # Eingabefelder
