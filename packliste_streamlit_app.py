@@ -9,7 +9,7 @@ from openai import OpenAI
 from fpdf import FPDF
 
 # Load environment variables
-load_dotenv()
+load_dotenv() 
 # Fallback: Nutze Streamlit Secrets, falls .env nicht verfügbar ist
 api_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
