@@ -29,6 +29,18 @@ st.markdown("""
         background-color: #ffffff;
     }
     .main h1 { color: #40bceb; }
+    .stButton button {
+        background-color: #40bceb;
+        color: white;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5em 1.2em;
+    }
+    .stButton button:hover {
+        background-color: #329bc5;
+        color: #ffffff;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -39,42 +51,48 @@ st.markdown("Fülle das Formular aus und erhalte eine individuell abgestimmte Pa
 st.subheader("📍 Reiseziel & Zeitraum")
 reiseziel = st.text_input("Reiseziel", placeholder="z. B. Barcelona")
 
-col1, col2 = st.columns(2)
-with col1:
-    startdatum = st.date_input("Startdatum", value=datetime.date.today())
-with col2:
-    enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
+zeitwahl = st.radio("Wie möchtest du deinen Reisezeitraum angeben?", ["Start- und Enddatum", "Nur Monat angeben"])
 
-dauer = (enddatum - startdatum).days
+if zeitwahl == "Start- und Enddatum":
+    startdatum = st.date_input("Startdatum", value=datetime.date.today())
+    enddatum = st.date_input("Enddatum", value=datetime.date.today() + datetime.timedelta(days=7))
+    dauer = (enddatum - startdatum).days
+    zeitraum_str = f"{startdatum} bis {enddatum} ({dauer} Tage)"
+else:
+    monat = st.selectbox("Monat", ["Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"])
+    tage = st.number_input("Anzahl der Reisetage", min_value=1, max_value=60, value=7)
+    startdatum = ""
+    dauer = tage
+    zeitraum_str = f"{monat}, {tage} Tage"
 
 st.subheader("👥 Anzahl der Reisenden")
-col1, col2, col3 = st.columns(3)
-with col1:
-    erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
-with col2:
-    kinder = st.number_input("Kinder", min_value=0, max_value=10, value=0)
-with col3:
-    haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
+erwachsene = st.number_input("Erwachsene", min_value=1, max_value=10, value=1)
+kinder = st.number_input("Kinder (inkl. Babys)", min_value=0, max_value=10, value=0)
+babys = st.number_input("Davon Babys", min_value=0, max_value=kinder, value=0)
+haustiere = st.number_input("Haustiere", min_value=0, max_value=5, value=0)
 
 st.subheader("🧭 Reiseart & Unterkunft")
-reiseart = st.selectbox("Reiseart", ["Strand", "Stadt", "Sport", "Familie", "Business"])
+reiseart = st.selectbox("Reiseart", ["Strand", "Stadt", "Sport", "Familie", "Business", "Romantik / Flittern"])
 unterkunft = st.selectbox("Unterkunft", ["Hotel", "Camping", "Selbstversorger"])
 transportmittel = st.selectbox("Transportmittel", ["Auto", "Flugzeug", "Zug", "Bus", "Wohnmobil"])
 
 st.subheader("🎯 Aktivitäten & Wünsche")
-aktivitaeten = st.multiselect(
-    "Aktivitäten",
-    ["Wandern", "Schwimmen", "Sightseeing", "Radfahren", "Klettern", "Wellness", "Tauchen", "Museen", "Skifahren"]
-)
-besondere_wuensche = st.text_area("Besondere Hinweise", placeholder="z. B. Allergien, barrierefreie Unterkunft")
+with st.expander("Aktivitäten auswählen"):
+    aktivitaeten = st.multiselect(
+        "Aktivitäten",
+        ["Wandern", "Schwimmen", "Sightseeing", "Radfahren", "Klettern", "Wellness", "Tauchen", "Museen", "Skifahren"]
+    )
+
+with st.expander("Besondere Hinweise"):
+    besondere_wuensche = st.text_area("Besondere Hinweise", placeholder="z. B. Allergien, barrierefreie Unterkunft")
 
 # Button zum Generieren der Packliste
 if st.button("📦 Packliste generieren"):
     prompt = f"""
     Erstelle eine Packliste für folgende Reisedaten:
     - Reiseziel: {reiseziel}
-    - Reisezeitraum: {startdatum} bis {enddatum} ({dauer} Tage)
-    - Erwachsene: {erwachsene}, Kinder: {kinder}, Haustiere: {haustiere}
+    - Reisezeitraum: {zeitraum_str}
+    - Erwachsene: {erwachsene}, Kinder: {kinder}, davon Babys: {babys}, Haustiere: {haustiere}
     - Reiseart: {reiseart}
     - Unterkunft: {unterkunft}
     - Transportmittel: {transportmittel}
@@ -109,7 +127,7 @@ if st.button("📦 Packliste generieren"):
                 st.download_button(
                     label="📄 Packliste als PDF herunterladen",
                     data=f,
-                    file_name=f"Packliste_{reiseziel}_{startdatum}.pdf",
+                    file_name=f"Packliste_{reiseziel}_{datetime.date.today()}.pdf",
                     mime="application/pdf"
                 )
     except Exception as e:
